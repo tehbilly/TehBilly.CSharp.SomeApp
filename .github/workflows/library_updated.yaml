@@ -16,6 +16,8 @@ jobs:
         with:
           dotnet-version: 7.x
           source-url: https://nuget.pkg.github.com/tehbilly/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add updated library to solution
         run: dotnet add TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj package ${{ github.event.client_payload.library }} --version ${{ github.event.client_payload.version }}
       - name: Run project to test it out
