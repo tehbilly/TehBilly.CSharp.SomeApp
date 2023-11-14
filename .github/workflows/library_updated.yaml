@@ -1,0 +1,21 @@
+name: Library Updated
+
+on:
+  repository_dispatch:
+    types:
+      - library_updated
+
+jobs:
+  update_library:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x
+      - name: Add updated library to solution
+        run: dotnet add TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj package ${{ github.event.client_payload.library }} --version ${{ github.event.client_payload.version }}
+      - name: Run project to test it out
+        run: dotnet run --project TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj
