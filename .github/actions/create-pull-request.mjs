@@ -2,6 +2,14 @@ import { info, error, startGroup, endGroup, setFailed } from "@actions/core";
 import { exec } from "@actions/exec";
 import { Octokit } from "@octokit/action";
 
+function expect(actionName, exitCode)
+{
+    if (exitCode !== 0) {
+        setFailed(`Error ${actionName}`);
+        process.exit();
+    }
+}
+
 function missingEnv(varName) {
     throw new Error(`Missing environment variable: ${varName}`);
 }
@@ -22,28 +30,31 @@ if (`${actorResponse.status}` !== "200") {
 endGroup();
 
 startGroup("Create and push new branch");
-let exitCode;
+const branchName = `update/${LIBRARY}-${VERSION}`;
+await exec("git", ["--status"]); // For debugging
+
 // Set committer information
 await exec("git", ["config", "user.name", `${actorResponse.data.name}`]);
 await exec("git", ["config", "user.email", `${actorResponse.data.email}`]);
+
+// Stash changes
+info("Stashing changes");
+expect("stashing changes", await exec("git", ["stash", "push", "*.csproj"]));
+// Pull updates
+expect("pulling updates", await exec("git", ["pull"]));
+// Pop stash
+expect("popping stash", await exec("git", ["stash", "pop"]))
 // Create new branch
-const branchName = `update/${LIBRARY}-${VERSION}`;
 info(`Creating new branch: ${branchName}`);
-exitCode = await exec("git", ["checkout", "-b", branchName]);
-if (exitCode !== 0) {
-    setFailed("Error creating new branch.");
-    process.exit();
-}
+expect("creating new branch", await exec("git", ["checkout", "-b", branchName]));
+// Add changes
+expect("adding changes", await exec("git", ["add", "."]));
 // Commit changes
-info("Committing changes to new branch.");
-exitCode = await exec("git", ["commit", "-a", "-m", `Updating ${LIBRARY} to ${VERSION}`]);
-if (exitCode !== 0) {
-    setFailed("Error committing changes.");
-    process.exit();
-}
+info("Committing changes to new branch");
+expect("committing changes", await exec("git", ["commit", "-m", `Updating ${LIBRARY} to ${VERSION}`]));
 // Push new branch
 info("Pushing new branch");
-exitCode = await exec("git", ["push", "--progress", "--set-upstream", "origin", branchName]);
+let exitCode = await exec("git", ["push", "--progress", "--set-upstream", "origin", branchName]);
 if (exitCode !== 0) {
     // Debug info if we can't push
     await exec("git", ["branch", "-vv"]);
