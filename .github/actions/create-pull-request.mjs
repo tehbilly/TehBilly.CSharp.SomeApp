@@ -2,9 +2,13 @@ import { info, error, startGroup, endGroup, setFailed } from "@actions/core";
 import { exec } from "@actions/exec";
 import { Octokit } from "@octokit/action";
 
+function missingEnv(varName) {
+    throw new Error(`Missing environment variable: ${varName}`);
+}
+
 const baseBranch = process.env.BASE_BRANCH || "main";
-const LIBRARY = process.env.LIBRARY || throw new Error("Missing env:LIBRARY");
-const VERSION = process.env.VERSION || throw new Error("Missing env:VERSION");
+const LIBRARY = process.env.LIBRARY || missingEnv("LIBRARY");
+const VERSION = process.env.VERSION || missingEnv("VERSION");
 
 const octokit = new Octokit();
 
