@@ -31,7 +31,6 @@ endGroup();
 
 startGroup("Create and push new branch");
 const branchName = `update/${LIBRARY}-${VERSION}`;
-await exec("git", ["status"]); // For debugging
 
 // Set committer information
 await exec("git", ["config", "user.name", `${actorResponse.data.name}`]);
@@ -48,7 +47,7 @@ expect("popping stash", await exec("git", ["stash", "pop"]))
 info(`Creating new branch: ${branchName}`);
 expect("creating new branch", await exec("git", ["checkout", "-b", branchName]));
 // Add changes
-expect("adding changes", await exec("git", ["add", "."]));
+expect("adding changes", await exec("git", ["add", "*.csproj"]));
 // Commit changes
 info("Committing changes to new branch");
 expect("committing changes", await exec("git", ["commit", "-m", `Updating ${LIBRARY} to ${VERSION}`]));
