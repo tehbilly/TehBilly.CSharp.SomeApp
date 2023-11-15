@@ -20,5 +20,14 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add updated library to solution
         run: dotnet add TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj package ${{ github.event.client_payload.library }} --version ${{ github.event.client_payload.version }}
-      - name: Run project to test it out
-        run: dotnet run --project TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.ACTIONS_TOKEN }}
+          title: "Update ${{ github.event.client_payload.library }} to ${{ github.event.client_payload.version }}"
+          commit-message: "Update ${{ github.event.client_payload.library }} to ${{ github.event.client_payload.version }}"
+          body: |
+            This pull request updates `${{ github.event.client_payload.library }}` to `${{ github.event.client_payload.version }}`.
+          branch: "update/${{ github.event.client_payload.library }}-${{ github.event.client_payload.version }}"
+          delete-branch: true
+          labels: "library update"
