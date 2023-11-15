@@ -27,8 +27,9 @@ let exitCode;
 await exec("git", ["config", "user.name", `${actorResponse.data.name}`]);
 await exec("git", ["config", "user.email", `${actorResponse.data.email}`]);
 // Create new branch
-info(`Creating new branch: update/${LIBRARY}-${VERSION}`);
-exitCode = await exec("git", ["checkout", "-b", `update/${LIBRARY}-${VERSION}`]);
+const branchName = `update/${LIBRARY}-${VERSION}`;
+info(`Creating new branch: ${branchName}`);
+exitCode = await exec("git", ["checkout", "-b", branchName]);
 if (exitCode !== 0) {
     setFailed("Error creating new branch.");
     process.exit();
@@ -42,7 +43,7 @@ if (exitCode !== 0) {
 }
 // Push new branch
 info("Pushing new branch");
-exitCode = await exec("git", ["push", "--progress"]);
+exitCode = await exec("git", ["push", "--progress", "--set-upstream", "origin", branchName]);
 if (exitCode !== 0) {
     // Debug info if we can't push
     await exec("git", ["branch", "-vv"]);
