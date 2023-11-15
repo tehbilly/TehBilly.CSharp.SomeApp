@@ -31,7 +31,7 @@ endGroup();
 
 startGroup("Create and push new branch");
 const branchName = `update/${LIBRARY}-${VERSION}`;
-await exec("git", ["--status"]); // For debugging
+await exec("git", ["status"]); // For debugging
 
 // Set committer information
 await exec("git", ["config", "user.name", `${actorResponse.data.name}`]);
