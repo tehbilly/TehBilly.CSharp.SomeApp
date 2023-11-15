@@ -20,14 +20,15 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add updated library to solution
         run: dotnet add TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj package ${{ github.event.client_payload.library }} --version ${{ github.event.client_payload.version }}
-      - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.ACTIONS_TOKEN }}
-          title: "Update ${{ github.event.client_payload.library }} to ${{ github.event.client_payload.version }}"
-          commit-message: "Update ${{ github.event.client_payload.library }} to ${{ github.event.client_payload.version }}"
-          body: |
-            This pull request updates `${{ github.event.client_payload.library }}` to `${{ github.event.client_payload.version }}`.
-          branch: "update/${{ github.event.client_payload.library }}-${{ github.event.client_payload.version }}"
-          delete-branch: true
-          labels: "library update"
+          node-version: latest
+      - name: Install npm dependencies
+        run: npm install @actions/core @actions/exec @octokit/action
+      - name: Create pull request
+        run: node .github/actions/create-pull-request.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+          LIBRARY: ${{ github.event.client_payload.library }}
+          VERSION: ${{ github.event.client_payload.version }}
