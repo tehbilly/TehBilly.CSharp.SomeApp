@@ -14,10 +14,10 @@ const octokit = new Octokit();
 
 startGroup("Fetching actor information");
 const actorResponse = await octokit.users.getByUsername({ username: process.env.GITHUB_ACTOR });
-if (actorResponse.status !== "200") {
+if (`${actorResponse.status}` !== "200") {
     error(`Response: ${JSON.stringify(actorResponse, null, '  ')}`)
     setFailed(`Error fetching information for actor '${process.env.GITHUB_ACTOR}'`);
-    process.exit(1);
+    process.exit();
 }
 endGroup();
 
@@ -31,14 +31,14 @@ info(`Creating new branch: update/${LIBRARY}-${VERSION}`);
 exitCode = await exec("git", ["checkout", "-b", `update/${LIBRARY}-${VERSION}`]);
 if (exitCode !== 0) {
     setFailed("Error creating new branch.");
-    process.exit(1);
+    process.exit();
 }
 // Commit changes
 info("Committing changes to new branch.");
 exitCode = await exec("git", ["commit", "-a", "-m", `Updating ${LIBRARY} to ${VERSION}`]);
 if (exitCode !== 0) {
     setFailed("Error committing changes.");
-    process.exit(1);
+    process.exit();
 }
 // Push new branch
 info("Pushing new branch");
@@ -49,7 +49,7 @@ if (exitCode !== 0) {
     await exec("git", ["remote", "-vv"])
 
     setFailed("Error committing changes.");
-    process.exit(1);
+    process.exit();
 }
 endGroup();
 
