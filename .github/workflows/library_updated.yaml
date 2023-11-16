@@ -23,7 +23,7 @@ jobs:
       - name: Add updated libraries to solution
         uses: tehbilly/rex-actions/update-nuget-dependencies@v1
         with:
-          libraries: ${{ github.event.client_payload.libraries }}
+          libraries: ${{ fromJSON(github.event.client_payload.libraries) }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
