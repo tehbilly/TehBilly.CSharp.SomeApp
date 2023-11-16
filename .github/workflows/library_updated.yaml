@@ -20,8 +20,10 @@ jobs:
           source-url: https://nuget.pkg.github.com/tehbilly/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add updated library to solution
-        run: dotnet add TehBilly.CSharp.SomeApp/TehBilly.CSharp.SomeApp.csproj package ${{ github.event.client_payload.library }} --version ${{ github.event.client_payload.version }}
+      - name: Add updated libraries to solution
+        uses: tehbilly/rex-actions/update-nuget-dependencies@v1
+        with:
+          libraries: ${{ github.event.client_payload.libraries }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
